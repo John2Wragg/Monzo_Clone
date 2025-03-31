@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Monzo Clone{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4">Welcome to Monzo Clone</h1>
+        <p class="lead mb-5">A simple banking application for managing users, deposits, and payments.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="h5 mb-3">View Users</h3>
+                <p class="text-muted">See all users and their current balances</p>
+                <a href="/users" class="btn btn-primary">View Users</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="h5 mb-3">Create Account</h3>
+                <p class="text-muted">Sign up for a new account</p>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="h5 mb-3">Make Deposit</h3>
+                <p class="text-muted">Add funds to your account</p>
+                <a href="/deposit" class="btn btn-success">Deposit</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="h5 mb-3">Make Payment</h3>
+                <p class="text-muted">Send a payment from your account</p>
+                <a href="/payment" class="btn btn-danger">Payment</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

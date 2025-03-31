@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Users - Monzo Clone{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="text-center mb-0">All Users</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td class="balance">£{{ "%.2f"|format(user.balance) }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info view-transactions" data-user-id="{{ user.id }}">
+                                View Transactions
+                            </button>
+                        </td>
+                    </tr>
+                    {% if loop.last %}
+                    <tr class="table-info">
+                        <td colspan="2"><strong>Total Balance:</strong></td>
+                        <td colspan="2" class="total-balance">
+                            £{{ "%.2f"|format(users|sum(attribute='balance')) }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No users found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions Modal -->
+<div class="modal fade" id="transactionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Recipient</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.view-transactions').forEach(button => {
+    button.addEventListener('click', async () => {
+        const userId = button.dataset.userId;
+        try {
+            const response = await fetch(`/transactions/${userId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new TypeError("Response was not JSON");
+            }
+            const transactions = await response.json();
+            
+            const tbody = document.querySelector('#transactionsTable tbody');
+            tbody.innerHTML = '';
+            
+            if (transactions.error) {
+                throw new Error(transactions.error);
+            }
+            
+            transactions.forEach(t => {
+                const row = document.createElement('tr');
+                const date = new Date(t.timestamp).toLocaleString('en-GB');
+                const amount = formatCurrency(t.amount);
+                const typeClass = t.type === 'deposit' ? 'text-success' : 'text-danger';
+                
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td class="${typeClass}">${t.type}</td>
+                    <td class="${typeClass}">${amount}</td>
+                    <td>${t.recipient_name || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            const modal = new bootstrap.Modal(document.getElementById('transactionsModal'));
+            modal.show();
+        } catch (error) {
+            showToast('Error loading transactions: ' + error.message, 'danger');
+            console.error('Error:', error);
+        }
+    });
+});
+
+// Auto-refresh the page every 30 seconds to keep balances up to date
+setInterval(() => {
+    window.location.reload();
+}, 30000);
+</script>
+{% endblock %} 

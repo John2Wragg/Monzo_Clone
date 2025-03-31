@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Monzo Clone{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Sign Up</h2>
+            </div>
+            <div class="card-body">
+                <form id="signupForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial_balance" class="form-label">Initial Balance (Optional)</label>
+                        <input type="number" class="form-control" id="initial_balance" name="initial_balance" step="0.01" min="0">
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+        name: document.getElementById('name').value,
+        balance: parseFloat(document.getElementById('initial_balance').value) || 0.0
+    };
+
+    try {
+        const response = await fetch('/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (response.ok) {
+            alert(`Account created successfully! Your user ID is: ${data.user_id}`);
+            document.getElementById('signupForm').reset();
+        } else {
+            alert('Error creating account: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error creating account: ' + error.message);
+    }
+});
+</script>
+{% endblock %} 
